@@ -12,22 +12,21 @@ git:
 
 before_install:
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git $TRAVIS_REPO_SLUG
-  - git remote add uptream https://github.com/apache/jackrabbit-filevault.git
   - cd $TRAVIS_REPO_SLUG
-  - git branch
+  - git remote add uptream https://github.com/apache/jackrabbit-filevault.git
+  #  - echo 'Merge Trunk into Master'
+  #  - git merge trunk
+  #  - echo 'Merge Features into Master'
+  #  - git merge feature/enable-insecure-https-host
+  - export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
+  - mvn clean package -q -B
 
 install:
-  - echo 'Merge Trunk into Master'
-  - git merge trunk
-#  - echo 'Merge Features into Master'
-#  - git merge feature/enable-insecure-https-host
-  - export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
-  - mvn clean package install
-
+  - mvn install
 
 ## Deploy packages to git
 deploy:
   - provider: script
-    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml
+    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true -DdeployAtEnd=true
     on:
       branch: master
