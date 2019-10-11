@@ -1,0 +1,23 @@
+language: java
+sudo: false
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+dist: trusty
+jdk:
+  - oraclejdk8
+
+git:
+  depth: false
+
+install:
+  - echo 'Merge Trunk into Master'
+  - mvn merge trunk
+  - echo 'Merge Features into Master'
+  - mvn merge feature/enable-insecure-https-host
+  - mvn clean package
+  
+## Deploy packages to git
+deploy:
+  - provider: script
+    script: mvn deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
