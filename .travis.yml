@@ -12,9 +12,9 @@ git:
 
 install:
   - echo 'Merge Trunk into Master'
-  - mvn merge trunk
+  - git merge trunk
   - echo 'Merge Features into Master'
-  - mvn merge feature/enable-insecure-https-host
+  - git merge feature/enable-insecure-https-host
   
 ## Deploy packages to git
 deploy:
