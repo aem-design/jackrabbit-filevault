@@ -13,12 +13,13 @@ git:
 before_install:
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git $TRAVIS_REPO_SLUG
   - cd $TRAVIS_REPO_SLUG
+  - git branch
 
 install:
   - echo 'Merge Trunk into Master'
   - git merge trunk
-  - echo 'Merge Features into Master'
-  - git merge feature/enable-insecure-https-host
+#  - echo 'Merge Features into Master'
+#  - git merge feature/enable-insecure-https-host
   
 ## Deploy packages to git
 deploy:
