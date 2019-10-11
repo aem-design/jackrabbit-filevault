@@ -12,6 +12,7 @@ git:
 
 before_install:
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git $TRAVIS_REPO_SLUG
+  - git remote add uptream https://github.com/apache/jackrabbit-filevault.git
   - cd $TRAVIS_REPO_SLUG
   - git branch
 
@@ -25,3 +26,5 @@ install:
 deploy:
   - provider: script
     script: mvn clean deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
+    on:
+      branch: master
