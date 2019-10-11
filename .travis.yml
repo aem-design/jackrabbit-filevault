@@ -15,9 +15,8 @@ install:
   - mvn merge trunk
   - echo 'Merge Features into Master'
   - mvn merge feature/enable-insecure-https-host
-  - mvn clean package
   
 ## Deploy packages to git
 deploy:
   - provider: script
-    script: mvn deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
+    script: mvn clean deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
