@@ -28,6 +28,6 @@ install:
 ## Deploy packages to git
 deploy:
   - provider: script
-    script: mvn clean deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
+    script: mvn deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
     on:
       branch: master
