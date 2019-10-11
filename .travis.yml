@@ -28,6 +28,6 @@ install:
 ## Deploy packages to git
 deploy:
   - provider: script
-    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml
+    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml
     on:
       branch: master
