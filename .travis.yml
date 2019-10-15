@@ -24,7 +24,7 @@ before_install:
   - mvn package -DskipTests=true -B -q && echo "PACKAGE AND LOCAL INSTALL DONE"
 
 install:
-  - mvn install -DskipTests=true -B -q && echo "INSTALL DONE"
+  - mvn install -DskipTests=true -Drat.skip=true -B -q && echo "INSTALL DONE"
 
 ## Deploy packages to git
 deploy:
