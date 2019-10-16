@@ -20,16 +20,15 @@ before_install:
   #  - echo 'Merge Features into Master'
   #  - git merge feature/enable-insecure-https-host
   - export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
-  - mvn clean -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -B -q && echo "CLEAN DONE"
-  - mvn package -DskipTests=true -B -q && echo "PACKAGE AND LOCAL INSTALL DONE"
+  - mvn clean -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true && echo "CLEAN DONE"
+  - mvn package -DskipTests=true && echo "PACKAGE AND LOCAL INSTALL DONE"
 
 install:
-  - mvn install -DskipTests=true -Drat.skip=true -B -q && echo "INSTALL DONE"
+  - mvn install -DskipTests=true -Drat.skip=true && echo "INSTALL DONE"
 
 ## Deploy packages to git
-deploy:
   - provider: script
-#    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true -q -B && echo "DEPLPOY DONE"
-    script: mvn deploy -DrepositoryId=github -Durl=https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true -q -B && echo "DEPLPOY DONE"
+    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
+#    script: mvn deploy -DrepositoryId=github -Durl=https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
     on:
       branch: master
