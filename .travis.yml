@@ -25,6 +25,8 @@ before_install:
 
 install:
   - mvn install -DskipTests=true -Drat.skip=true && echo "INSTALL DONE"
+  - ls -al
+  - cat settings.xml
 
 ## Deploy packages to git
   - provider: script
