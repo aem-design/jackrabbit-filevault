@@ -24,21 +24,15 @@ before_install:
   - export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
   - mvn clean -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "CLEAN DONE"
   - mvn package -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "PACKAGE AND LOCAL INSTALL DONE"
-  - echo 'display tree of ./parent/target folder'
-  - tree -P "*.pom|*.jar|*.xml" ./parent/target
-  - echo 'display tree of ./target folder'
-  - tree -P "*.pom|*.jar|*.xml" ./target
+  - echo 'display tree of .'
+  - tree -P "*.pom|*.jar|*.xml" .
 
 install:
-  - echo 'display tree of ./parent/target folder before mvn install'
-  - tree -P "*.pom|*.jar|*.xml" ./parent/target
-  - echo 'display tree of ./target folder before mvn install'
-  - tree -P "*.pom|*.jar|*.xml" ./target
+  - echo 'display tree of . folder before mvn install'
+  - tree -P "*.pom|*.jar|*.xml" .
   - mvn install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "INSTALL DONE"
-  - echo 'display tree of ./parent/target folder after mvn install'
-  - tree -P "*.pom|*.jar|*.xml" ./parent/target
-  - echo 'display tree of ./target folder after mvn install'
-  - tree -P "*.pom|*.jar|*.xml" ./target
+  - echo 'display tree of . folder after mvn install'
+  - tree -P "*.pom|*.jar|*.xml" .
 
 ## Deploy packages to git
 deploy:
