@@ -31,7 +31,7 @@ install:
 ## Deploy packages to git
   - provider: script
 #    script: mvn clean deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
-   script: mvn deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml && echo "DEPLPOY DONE"
+    script: mvn deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml && echo "DEPLPOY DONE"
 #    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
 #    script: mvn deploy -DrepositoryId=github -Durl=https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
     on:
