@@ -27,6 +27,7 @@ install:
   - mvn install -DskipTests=true -Drat.skip=true && echo "INSTALL DONE"
   - sudo apt-get install tree
   - tree /home/travis/.m2/repository/org/apache/jackrabbit/vault
+  - pwd
 
 ## Deploy packages to git
   - provider: script
