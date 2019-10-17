@@ -28,12 +28,14 @@ install:
   - sudo apt-get install tree
   - tree /home/travis/.m2/repository/org/apache/jackrabbit/vault
   - pwd
+  - cat settings.xml
 
 ## Deploy packages to git
+deploy:
   - provider: script
-#    script: mvn clean deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
-    script: mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml && echo "DEPLPOY DONE"
-#    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
-#    script: mvn deploy -DrepositoryId=github -Durl=https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
+    script: mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml
     on:
       branch: master
+#    script: mvn clean deploy -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN
+#    script: mvn deploy -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
+#    script: mvn deploy -DrepositoryId=github -Durl=https://maven.pkg.github.com/aem-design --settings settings.xml -DskipTests=true && echo "DEPLPOY DONE"
