@@ -27,6 +27,10 @@ install:
   - mvn install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "INSTALL DONE"
   - sudo apt-get install tree
   - tree /home/travis/.m2/repository/org/apache/jackrabbit/vault
+  - echo 'display tree of ./parent/target folder'
+  - tree ./parent/target
+  - echo 'display tree of ./target folder'
+  - tree ./target
 
 ## Deploy packages to git
 deploy:
