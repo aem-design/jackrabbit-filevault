@@ -14,6 +14,7 @@ before_install:
   - sudo apt-get install tree
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git $TRAVIS_REPO_SLUG
   - cd $TRAVIS_REPO_SLUG
+  - pwd
   - git checkout master
   - git remote add uptream https://github.com/apache/jackrabbit-filevault.git
   #  - echo 'Merge Trunk into Master'
@@ -26,18 +27,18 @@ before_install:
   - echo 'display tree of ./parent/target folder'
   - tree -P "*.pom|*.jar|*.xml" ./parent/target
   - echo 'display tree of ./target folder'
-  - tree ./target
+  - tree -P "*.pom|*.jar|*.xml" ./target
 
 install:
   - echo 'display tree of ./parent/target folder before mvn install'
   - tree -P "*.pom|*.jar|*.xml" ./parent/target
   - echo 'display tree of ./target folder before mvn install'
-  - tree ./target
+  - tree -P "*.pom|*.jar|*.xml" ./target
   - mvn install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "INSTALL DONE"
   - echo 'display tree of ./parent/target folder after mvn install'
   - tree -P "*.pom|*.jar|*.xml" ./parent/target
   - echo 'display tree of ./target folder after mvn install'
-  - tree ./target
+  - tree -P "*.pom|*.jar|*.xml" ./target
 
 ## Deploy packages to git
 deploy:
