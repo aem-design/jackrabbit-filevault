@@ -11,6 +11,7 @@ git:
   clone: false
 
 before_install:
+  - sudo apt-get install tree
   - git clone https://github.com/$TRAVIS_REPO_SLUG.git $TRAVIS_REPO_SLUG
   - cd $TRAVIS_REPO_SLUG
   - git checkout master
@@ -22,14 +23,20 @@ before_install:
   - export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
   - mvn clean -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "CLEAN DONE"
   - mvn package -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "PACKAGE AND LOCAL INSTALL DONE"
+  - echo 'display tree of ./parent/target folder'
+  - tree -P "*.pom|*.jar|*.xml" ./parent/target
+  - echo 'display tree of ./target folder'
+  - tree ./target
 
 install:
+  - echo 'display tree of ./parent/target folder before mvn install'
+  - tree -P "*.pom|*.jar|*.xml" ./parent/target
+  - echo 'display tree of ./target folder before mvn install'
+  - tree ./target
   - mvn install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "INSTALL DONE"
-  - sudo apt-get install tree
-  - tree /home/travis/.m2/repository/org/apache/jackrabbit/vault
-  - echo 'display tree of ./parent/target folder'
-  - tree ./parent/target
-  - echo 'display tree of ./target folder'
+  - echo 'display tree of ./parent/target folder after mvn install'
+  - tree -P "*.pom|*.jar|*.xml" ./parent/target
+  - echo 'display tree of ./target folder after mvn install'
   - tree ./target
 
 ## Deploy packages to git
