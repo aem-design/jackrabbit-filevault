@@ -24,9 +24,6 @@
                     <id>github</id>
                     <name>GitHub OWNER Apache Maven Packages</name>
                     <url>https://maven.pkg.github.com/aem-design/jackrabbit-filevault</url>
-                    <releases>
-                        <enabled>false</enabled>
-                    </releases>
                 </repository>
             </repositories>
         </profile>
