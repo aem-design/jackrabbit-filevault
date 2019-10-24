@@ -27,7 +27,7 @@ before_install:
   - mvn package -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "PACKAGE AND LOCAL INSTALL DONE"
 
 install:
-  - mvn install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true && echo "INSTALL DONE"
+  - mvn install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -Dbaseline.skip=true && echo "INSTALL DONE"
 
 ## Deploy packages to git
 deploy:
