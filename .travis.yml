@@ -18,6 +18,8 @@ before_install:
   - git clone https://github.com/apache/jackrabbit-filevault.git
   - cd jackrabbit-filevault
   - git checkout jackrabbit-filevault-3.4.0
+  - cp ../build.gradle .
+
   #  - echo 'Merge Trunk into Master'
   #  - git merge trunk
   #  - echo 'Merge Features into Master'
@@ -35,7 +37,7 @@ deploy:
 #    script: mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml && echo "DEPLPOY DONE"
     script: mvn deploy -DskipTests=true -Dbaseline.skip=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design/jackrabbit-filevault --settings ../settings.xml && echo "DEPLPOY DONE"
 #            mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml && echo "DEPLPOY DONE"
-    on:
-      branch: master
+#    on:
+#      branch: master
 #    script: mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -Dregistry=https://maven.pkg.github.com/aem-design -Dtoken=$GITHUB_TOKEN && echo "DEPLPOY DONE"
 #    script: mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DrepositoryId=github -Durl=https://maven.pkg.github.com/aem-design --settings settings.xml && echo "DEPLPOY DONE"
