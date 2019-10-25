@@ -33,7 +33,7 @@ install:
 deploy:
   - provider: script
 #    script: mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$TRAVIS_REPO_SLUG --settings settings.xml && echo "DEPLPOY DONE"
-    script: mvn deploy -DskipTests=true -Dbaseline.skip=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design/jackrabbit-filevault --settings settings.xml && echo "DEPLPOY DONE"
+    script: mvn deploy -DskipTests=true -Dbaseline.skip=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design/jackrabbit-filevault --settings ../settings.xml && echo "DEPLPOY DONE"
 #            mvn -X deploy -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/aem-design --settings settings.xml && echo "DEPLPOY DONE"
     on:
       branch: master
