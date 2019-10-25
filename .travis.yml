@@ -18,6 +18,7 @@ before_install:
   - git clone https://github.com/apache/jackrabbit-filevault.git
   - cd jackrabbit-filevault
   - git checkout jackrabbit-filevault-3.4.0
+  - pwd
   - cp ../build.gradle .
 
   #  - echo 'Merge Trunk into Master'
