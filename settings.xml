@@ -23,7 +23,7 @@
                 <repository>
                     <id>github</id>
                     <name>GitHub OWNER Apache Maven Packages</name>
-                    <url>https://maven.pkg.github.com/aem-design/jackrabbit-filevault</url>
+                    <url>https://maven.pkg.github.com/rickyaut/jackrabbit-filevault</url>
                 </repository>
             </repositories>
         </profile>
@@ -33,8 +33,8 @@
     <servers>
         <server>
             <id>github</id>
-            <username>aemdesign</username>
-            <password>${GITHUB_TOKEN}</password>
+            <username>rickyaut</username>
+            <password>${GITHUB_TOKEN_RICKYAUT}</password>
         </server>
     </servers>
 </settings>
