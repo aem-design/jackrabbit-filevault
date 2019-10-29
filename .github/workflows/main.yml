@@ -105,9 +105,8 @@ jobs:
                   # mvn release:prepare -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2/repository -B
                   mvn package -Djackrabbit.version=${JACKRABBIT_VERSION} -B
                   echo ::set-env name=GITHUB_TAG::$(mvn help:evaluate -q -DforceStdout -Dexpression=project.version)
-                #          mvn deploy -P release -DskipTests=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$GITHUB_REPOSITORY --settings settings.xml -B
-                
-                # deploy files as release artifacts
+                  # mvn deploy -P release -DskipTests=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$GITHUB_REPOSITORY --settings settings.xml -B
+                  # deploy files as release artifacts
             - uses: meeDamian/github-release@1.0
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
@@ -116,5 +115,5 @@ jobs:
                   body: ${{ env.GIT_RELEASE_NOTES }}
                   files: >
                       **/target/*.jar
-                      **/target/*.asc
-                      **/target/*.pom
+#                      **/target/*.asc
+#                      **/target/*.pom
