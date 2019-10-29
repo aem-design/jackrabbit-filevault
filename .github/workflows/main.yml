@@ -91,6 +91,7 @@ jobs:
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.jar.tgz"
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.jar.tgz"
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar.tgz"
+                  ls -l ./bin
                   echo extract jar files
                   find ./bin -name *.tgz -exec tar --strip=2 -C ./bin -xvzf {} \;
                   ls -l ./bin
