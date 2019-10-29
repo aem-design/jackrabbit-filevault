@@ -36,7 +36,7 @@ public final class PackageTypeValidatorFactory implements ValidatorFactory {
      */
     public static final String OPTION_JCR_INSTALLER_NODE_PATH_REGEX = "jcrInstallerNodePathRegex";
 
-    public static final Pattern DEFAULT_JCR_INSTALLER_NODE_PATH_REGEX = Pattern.compile("/([^/]*/){0,4}?(install|config)(\\.[^/]*)*/(\\d{1,3}/)?.+?\\.(jar|config|cfg|cfg\\.json|xml)$");
+    static final Pattern DEFAULT_JCR_INSTALLER_NODE_PATH_REGEX = Pattern.compile("/([^/]*/){0,4}?(install|config)(\\.[^/]*)*/(\\d{1,3}/)?.+?\\.(jar|config|cfg|cfg\\.json|xml)$");
 
     @Override
     public @CheckForNull Validator createValidator(ValidationContext context, ValidatorSettings settings) {
@@ -58,7 +58,7 @@ public final class PackageTypeValidatorFactory implements ValidatorFactory {
 
     @Override
     public String getId() {
-        return ValidatorFactory.PREFIX_JACKRABBIT + "packagetype";
+        return ValidatorFactory.ID_PREFIX_JACKRABBIT + "packagetype";
     }
 
     @Override

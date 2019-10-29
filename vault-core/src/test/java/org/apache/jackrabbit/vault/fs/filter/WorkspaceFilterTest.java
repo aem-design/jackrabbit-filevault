@@ -16,6 +16,12 @@
  */
 package org.apache.jackrabbit.vault.fs.filter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -31,19 +37,13 @@ import org.apache.jackrabbit.vault.fs.config.DefaultWorkspaceFilter;
 import org.apache.tika.io.IOUtils;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 /**
  * {@code WorkspaceFilterTest}...
  */
 public class WorkspaceFilterTest {
 
     @Test
-    public void testMatching() {
+    public void testMatching() throws ConfigurationException {
         DefaultWorkspaceFilter filter = new DefaultWorkspaceFilter();
         PathFilterSet set1 = new PathFilterSet("/foo");
         filter.add(set1);
@@ -77,7 +77,7 @@ public class WorkspaceFilterTest {
     }
 
     @Test
-    public void testMapping2() {
+    public void testMapping2() throws ConfigurationException {
         DefaultWorkspaceFilter filter = new DefaultWorkspaceFilter();
         PathFilterSet set1 = new PathFilterSet("/tmp/stage");
         set1.addInclude(new DefaultPathFilter("/tmp/stage/products(/.*)?"));
@@ -93,7 +93,7 @@ public class WorkspaceFilterTest {
     }
 
     @Test
-    public void testRelativePatterns() {
+    public void testRelativePatterns() throws ConfigurationException {
         PathFilterSet set1 = new PathFilterSet("/foo");
         set1.addInclude(new DefaultPathFilter("/foo/.*"));
         set1.addInclude(new DefaultPathFilter("/bar/.*"));
@@ -117,8 +117,9 @@ public class WorkspaceFilterTest {
     public void testLoadingWorkspaceFilter()
             throws IOException, ConfigurationException {
         DefaultWorkspaceFilter filter = new DefaultWorkspaceFilter();
-        filter.load(getClass().getResourceAsStream("workspacefilters/items.xml"));
-
+        try (InputStream input = getClass().getResourceAsStream("workspacefilters/items.xml")) {
+            filter.load(input);
+        }
         List<PathFilterSet> nodeFilterSets = filter.getFilterSets();
         assertNotNull(nodeFilterSets);
         assertEquals(1, nodeFilterSets.size());
@@ -138,6 +139,12 @@ public class WorkspaceFilterTest {
         assertEquals(1, propertyFilters.size());
         FilterSet.Entry<PathFilter> propertyFilter = propertyFilters.get(0);
         assertFalse(propertyFilter.isInclude());
+        
+        // make sure serialization format is kept (including comments)
+        try (InputStream input = getClass().getResourceAsStream("workspacefilters/items.xml");
+             InputStream actualInput = filter.getSource()) {
+            assertEquals(IOUtils.toString(input), IOUtils.toString(actualInput));
+        }
     }
 
     @Test
@@ -153,7 +160,7 @@ public class WorkspaceFilterTest {
     }
 
     @Test
-    public void testGeneratedSourceFromCode()  {
+    public void testGeneratedSourceFromCode() throws ConfigurationException  {
         String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<workspaceFilter version=\"1.0\">\n" +
                 "    <filter root=\"/tmp\">\n" +
@@ -174,7 +181,7 @@ public class WorkspaceFilterTest {
     }
 
     @Test
-    public void testGeneratedSourceFromCodeWithProps()  {
+    public void testGeneratedSourceFromCodeWithProps() throws ConfigurationException  {
         String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<workspaceFilter version=\"1.0\">\n" +
                 "    <filter root=\"/foo\"/>\n" +
@@ -195,7 +202,7 @@ public class WorkspaceFilterTest {
     }
 
     @Test
-    public  void testEquals() throws IOException, ConfigurationException {
+    public void testEquals() throws IOException, ConfigurationException {
         DefaultWorkspaceFilter filter = new DefaultWorkspaceFilter();
         try (InputStream input = getClass().getResourceAsStream("workspacefilters/complex.xml")) {
             filter.load(input);
@@ -213,5 +220,40 @@ public class WorkspaceFilterTest {
         // modify filter2 slightly
         filter2.setGlobalIgnored(PathFilter.NONE);
         assertNotEquals(filter, filter2);
+    }
+
+    @Test
+    public void testModificationLeadsToDifferentSerialization() throws IOException, ConfigurationException {
+        DefaultWorkspaceFilter filter = new DefaultWorkspaceFilter();
+        try (InputStream input = getClass().getResourceAsStream("workspacefilters/items.xml")) {
+            filter.load(input);
+        }
+        // now modify the filter
+        filter.add(new PathFilterSet("/newroot"));
+        String previousSerialization;
+        try (InputStream input = getClass().getResourceAsStream("workspacefilters/items.xml")) {
+            previousSerialization = IOUtils.toString(input);
+        }
+        // and check the serialization again
+        try (InputStream actualInput = filter.getSource()) {
+            String actual = IOUtils.toString(actualInput);
+            assertNotEquals(previousSerialization, actual);
+            previousSerialization = actual;
+        }
+        filter.add(new PathFilterSet("/someotherroot"), new PathFilterSet("/someotherroot"));
+        // and check the serialization again
+        try (InputStream actualInput = filter.getSource()) {
+            String actual = IOUtils.toString(actualInput);
+            assertNotEquals(previousSerialization, actual);
+            previousSerialization = actual;
+        }
+    }
+
+    @Test(expected=ConfigurationException.class)
+    public void testInvalidPattern() throws IOException, ConfigurationException {
+        DefaultWorkspaceFilter filter = new DefaultWorkspaceFilter();
+        try (InputStream input = getClass().getResourceAsStream("workspacefilters/invalid-pattern.xml")) {
+            filter.load(input);
+        }
     }
 }
