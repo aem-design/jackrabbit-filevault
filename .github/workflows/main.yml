@@ -93,7 +93,7 @@ jobs:
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar.tgz"
                   ls -l ./bin
                   echo extract jar files
-                  find ./bin -name -maxdepth 1 *.tgz -exec tar --strip=2 -C ./bin -xvf '{}' \;
+                  find ./bin -name *.tgz -exec tar --strip=2 -C ./bin -xvf '{}' \;
                   ls -l ./bin
                   echo install dependecy jars
                   mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=true
