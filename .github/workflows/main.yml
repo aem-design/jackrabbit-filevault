@@ -32,6 +32,9 @@ jobs:
             GPG_OWNERTRUST: ${{ secrets.GPG_OWNERTRUST }}
             GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
             GPG_EXECUTABLE: gpg
+            GPG_PRESET_EXECUTABLE: /usr/lib/gnupg/gpg-preset-passphrase
+            GPG_PUBID: "50A036956AAC64C13EF47B10D1E96A30ECFC7DFF"
+            GPG_PUBID_KEYGRIP: "020E615868703482DC2CD110B98D2702B6ABF89C"
             JACKRABBIT_VERSION: "2.19.6-SNAPSHOT"
         
         
@@ -90,6 +93,7 @@ jobs:
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar.tgz"
                   echo extract jar files
                   find ./bin -name *.tgz -exec tar --strip=2 -C ./bin -xvzf {} \;
+                  ls -l ./bin
                   echo install dependecy jars
                   mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=true
                   mvn install:install-file -Dfile=./bin/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=true
