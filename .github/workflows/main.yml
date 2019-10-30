@@ -83,17 +83,14 @@ jobs:
                   source <(curl -sL https://github.com/aem-design/aemdesign-docker/releases/latest/download/download.sh)
                   mkdir bin
                   echo download files
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-core-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr-client-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi-commons-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.jar.tgz"
-                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar.tgz"
-                  ls -l ./bin
-                  echo extract jar files
-                  find ./bin -name *.tgz -exec tar --strip=2 -C ./bin -xvf '{}' \;
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-core-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr-client-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi-commons-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.jar"
+                  download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar"
                   ls -l ./bin
                   echo install dependecy jars
                   mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=true
@@ -118,6 +115,7 @@ jobs:
                   tag: ${{ env.GITHUB_TAG }}
                   name: ${{ env.GITHUB_TAG }}
                   body: ${{ env.GIT_RELEASE_NOTES }}
+                  gzip: false
                   files: >
                       **/target/*.jar
 #                      **/target/*.asc
