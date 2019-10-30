@@ -106,7 +106,7 @@ jobs:
               run: |
                   export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
                   # mvn release:prepare -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2/repository -B
-                  mvn package -Djackrabbit.version=${JACKRABBIT_VERSION} -B
+                  mvn clean package install -Djackrabbit.version=${JACKRABBIT_VERSION} -B -Dmaven.repo.local=~/.m2/repository
                   echo ::set-env name=GITHUB_TAG::$(mvn help:evaluate -q -DforceStdout -Dexpression=project.version)
                   # mvn deploy -P release -DskipTests=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$GITHUB_REPOSITORY --settings settings.xml -B
                   # deploy files as release artifacts
@@ -118,7 +118,9 @@ jobs:
                   body: ${{ env.GIT_RELEASE_NOTES }}
                   gzip: false
                   files: >
-                      **/target/*.jar
+                      ~/.m2/repository/org/apache/jackrabbit/jackrabbit-*/**/*.pom
+                      ~/.m2/repository/org/apache/jackrabbit/jackrabbit-*/**/*.jar
+                      ~/.m2/repository/org/apache/jackrabbit/jackrabbit-*/**/*.zip
                       **/target/*.zip
 #                      **/target/*.asc
 #                      **/target/*.pom
