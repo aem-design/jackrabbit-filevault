@@ -118,5 +118,6 @@ jobs:
                   gzip: false
                   files: >
                       **/target/*.jar
+                      **/target/*.zip
 #                      **/target/*.asc
 #                      **/target/*.pom
