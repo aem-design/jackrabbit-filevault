@@ -79,6 +79,7 @@ jobs:
               run: |
                   source <(curl -sL https://github.com/aem-design/aemdesign-docker/releases/latest/download/download.sh)
                   mkdir bin
+                  sudo apt install tree
                   echo download files
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-core-${JACKRABBIT_VERSION}.jar"
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.jar"
@@ -104,41 +105,40 @@ jobs:
                   download "./bin/" "-" "-" "https://github.com/aem-design/jackrabbit/releases/download/${JACKRABBIT_VERSION}/jackrabbit-${JACKRABBIT_VERSION}.pom"
                   ls -l ./bin
                   echo install dependecy jars
-                  mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-client-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-client -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-commons-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr2spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi2dav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-webdav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-data-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-data -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-client-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-client -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-commons-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr2spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi2dav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-webdav-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-webdav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-data-${JACKRABBIT_VERSION}.jar -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-data -Dversion=${JACKRABBIT_VERSION} -Dpackaging=jar -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
 
-                  mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-client-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-client -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-commons-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr2spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi2dav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-webdav-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-webdav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-data-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-data -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-core-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-core -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-commons-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr-client-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr-client -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-commons-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi-commons -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-spi-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-jcr2spi-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-jcr2spi -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-spi2dav-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-spi2dav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-webdav-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-webdav -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-data-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-data -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
 
-                  mvn install:install-file -Dfile=./bin/jackrabbit-parent-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-parent -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
-                  mvn install:install-file -Dfile=./bin/jackrabbit-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=~/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-parent-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit-parent -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
+                  mvn install:install-file -Dfile=./bin/jackrabbit-${JACKRABBIT_VERSION}.pom -DgroupId=org.apache.jackrabbit -DartifactId=jackrabbit -Dversion=${JACKRABBIT_VERSION} -Dpackaging=pom -DgeneratePom=false -Dmaven.repo.local=bin/.m2/repository
 
-                  ls -l ~/.m2/repository/org/apache/jackrabbit
-                  sudo apt install tree
-                  tree --du ~/.m2/repository/org/apache/jackrabbit
+                  ls -l bin/.m2/repository/org/apache/jackrabbit
+                  tree --du bin/.m2/repository/org/apache/jackrabbit
             - name: build and prepare maven artifacts
               run: |
                   export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
                   # mvn release:prepare -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2/repository -B
-                  mvn clean package install -Djackrabbit.version=${JACKRABBIT_VERSION} -Dmaven.javadoc.skip=true -Dmaven.source.skip=true  -pl '!vault-doc' -Drat.skip=true -Dmaven.repo.local=~/.m2/repository -B
+                  mvn clean package install -Djackrabbit.version=${JACKRABBIT_VERSION} -Dmaven.javadoc.skip=true -Dmaven.source.skip=true  -pl '!vault-doc' -Drat.skip=true -Dmaven.repo.local=bin/.m2/repository -B
                   echo ::set-env name=GITHUB_TAG::$(mvn help:evaluate -q -DforceStdout -Dexpression=project.version)
                   # mvn deploy -P release -DskipTests=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$GITHUB_REPOSITORY --settings settings.xml -B
                   # deploy files as release artifacts
-                  tree --du ~/.m2/repository/org/apache/jackrabbit/vault
+                  tree --du bin/.m2/repository/org/apache/jackrabbit/vault
 
             - uses: meeDamian/github-release@1.0
               with:
@@ -149,9 +149,9 @@ jobs:
                   allow_override: true
                   gzip: false
                   files: >
-                      ~/.m2/repository/org/apache/jackrabbit/vault/**/*.pom
-                      ~/.m2/repository/org/apache/jackrabbit/vault/**/*.jar
-                      ~/.m2/repository/org/apache/jackrabbit/vault/**/*.zip
-                      ~/.m2/repository/org/apache/jackrabbit/vault/**/*.tar.gz
+                      bin/.m2/repository/org/apache/jackrabbit/vault/**/*.pom
+                      bin/.m2/repository/org/apache/jackrabbit/vault/**/*.jar
+                      bin/.m2/repository/org/apache/jackrabbit/vault/**/*.zip
+                      bin/.m2/repository/org/apache/jackrabbit/vault/**/*.tar.gz
 #                      **/target/*.asc
 #                      **/target/*.pom
