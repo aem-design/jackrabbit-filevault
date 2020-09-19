@@ -148,7 +148,7 @@ jobs:
           echo ::set-env name=GITHUB_TAG::$(mvn help:evaluate -q -DforceStdout -Dexpression=project.version)
           # mvn deploy -P release -DskipTests=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$GITHUB_REPOSITORY --settings settings.xml -B
           # deploy files as release artifacts
-          tree --du ${M2_HOME}/org/apache/jackrabbit/vault
+          #tree --du ${M2_HOME}/org/apache/jackrabbit/vault
 
       - uses: meeDamian/github-release@1.0
         if: github.ref == 'refs/heads/master'
