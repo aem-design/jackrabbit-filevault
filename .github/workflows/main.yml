@@ -144,7 +144,7 @@ jobs:
           export MAVEN_OPTS="-Xmx2024M -Xss128M -XX:MetaspaceSize=512M -XX:MaxMetaspaceSize=2024M -XX:+CMSClassUnloadingEnabled"
           # mvn release:prepare -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Dmaven.repo.local=${GITHUB_WORKSPACE}/.m2/repository -B
           #mvn clean package install -Djackrabbit.version=${JACKRABBIT_VERSION} -Dmaven.javadoc.skip=true -Dmaven.source.skip=true  -pl '!vault-doc' -Drat.skip=true -Dmaven.repo.local=${M2_HOME} -B
-          mvn clean package install -Dmaven.javadoc.skip=true -Dmaven.source.skip=true  -pl '!vault-doc' -Drat.skip=true -Dmaven.repo.local=${M2_HOME} -B
+          mvn clean package install -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -Drat.skip=true -Dmaven.repo.local=${M2_HOME} -B
           echo ::set-env name=GITHUB_TAG::$(mvn help:evaluate -q -DforceStdout -Dexpression=project.version)
           # mvn deploy -P release -DskipTests=true -Dmaven.javadoc.skip=true -Dmaven.source.skip=true -DaltDeploymentRepository=github::default::https://maven.pkg.github.com/$GITHUB_REPOSITORY --settings settings.xml -B
           # deploy files as release artifacts
