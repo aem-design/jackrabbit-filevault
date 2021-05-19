@@ -39,7 +39,7 @@ import org.apache.jackrabbit.vault.packaging.InstallHookProcessor;
 import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.jackrabbit.vault.packaging.VaultPackage;
 import org.apache.jackrabbit.vault.util.Constants;
-import org.apache.jackrabbit.vault.util.Text;
+import org.apache.jackrabbit.util.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,15 +141,13 @@ public class InstallHookProcessorImpl implements InstallHookProcessor {
         for (Hook hook : hooks.values()) {
             try {
                 hook.getHook().execute(context);
-            } catch (PackageException e) {
+            } catch (Throwable e) {
                 // abort processing only for prepare and installed phase
                 if (context.getPhase() == InstallContext.Phase.PREPARE || context.getPhase() == InstallContext.Phase.INSTALLED) {
-                    log.warn("Hook " + hook.name +" threw package exception. {} aborted.", context.getPhase(), e);
+                    log.warn("Hook " + hook.name +" threw exception. {} aborted.", context.getPhase(), e);
                     return false;
                 }
-                log.warn("Hook " + hook.name +" threw package exception. Ignored", e);
-            } catch (Throwable e) {
-                log.warn("Hook " + hook.name +" threw runtime exception.", e);
+                log.warn("Hook " + hook.name +" threw exception. Ignored", e);
             }
             // if in end phase, shutdown hooks
             if (context.getPhase() == InstallContext.Phase.END) {

@@ -98,7 +98,7 @@ import org.apache.jackrabbit.vault.packaging.impl.ActivityLog;
 import org.apache.jackrabbit.vault.packaging.impl.JcrPackageManagerImpl;
 import org.apache.jackrabbit.vault.packaging.impl.ZipVaultPackage;
 import org.apache.jackrabbit.vault.packaging.registry.impl.JcrPackageRegistry;
-import org.apache.jackrabbit.vault.util.Text;
+import org.apache.jackrabbit.util.Text;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -126,9 +126,9 @@ public class IntegrationTestBase  {
     private static final Logger log = LoggerFactory.getLogger(IntegrationTestBase.class);
 
     private static final String REPO_HOME = "target/repository";
-    private static final File DIR_REPO_HOME = new File(REPO_HOME);
-    private static final File DIR_DATA_STORE = new File(REPO_HOME + "/datastore");
-    private static final File DIR_BLOB_STORE = new File(REPO_HOME + "/blobstore");
+    private static final File DIR_REPO_HOME = new File(REPO_HOME + System.getProperty("repoIndex", "0"));
+    private static final File DIR_DATA_STORE = new File(DIR_REPO_HOME, "datastore");
+    private static final File DIR_BLOB_STORE = new File(DIR_REPO_HOME, "blobstore");
 
     public static final PackageId TMP_PACKAGE_ID = new PackageId("my_packages", "tmp", "");
 
@@ -200,9 +200,10 @@ public class IntegrationTestBase  {
             admin.save();
             admin.logout();
         } else {
-            InputStream in = IntegrationTestBase.class.getResourceAsStream("repository.xml");
-            RepositoryConfig cfg = RepositoryConfig.create(in, REPO_HOME);
-            repository = RepositoryImpl.create(cfg);
+            try (InputStream in = IntegrationTestBase.class.getResourceAsStream("repository.xml")) {
+                RepositoryConfig cfg = RepositoryConfig.create(in, DIR_REPO_HOME.getPath());
+                repository = RepositoryImpl.create(cfg);
+            }
         }
         log.info("repository created: {} {}",
                 repository.getDescriptor(Repository.REP_NAME_DESC),
@@ -447,7 +448,12 @@ public class IntegrationTestBase  {
 
     public ImportOptions getDefaultOptions() {
         ImportOptions opts = new ImportOptions();
-        opts.setListener(new ProgressTrackerListener() {
+        opts.setListener(getLoggingProgressTrackerListener());
+        return opts;
+    }
+
+    public ProgressTrackerListener getLoggingProgressTrackerListener() {
+        return new ProgressTrackerListener() {
             public void onMessage(Mode mode, String action, String path) {
                 log.info("{} {}", action, path);
             }
@@ -455,8 +461,7 @@ public class IntegrationTestBase  {
             public void onError(Mode mode, String path, Exception e) {
                 log.info("E {} {}", path, e.toString());
             }
-        });
-        return opts;
+        };
     }
 
     /**

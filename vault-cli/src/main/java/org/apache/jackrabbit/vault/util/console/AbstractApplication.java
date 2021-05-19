@@ -79,7 +79,7 @@ public abstract class AbstractApplication {
     }
     
     public String getCopyrightLine() {
-        return "Copyright 2013 by Apache Software Foundation. See LICENSE.txt for more information.";
+        return "copyright 2013-2020 by Apache Software Foundation. See LICENSE.txt for more information.";
     }
     
     public String getVersionString() {
@@ -318,9 +318,9 @@ public abstract class AbstractApplication {
         }
         props.store(out, "Console Configuration");
         */
-        FileOutputStream out = new FileOutputStream(file);
-        globalEnv.store(out, "Console Configuration");
-        out.close();
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            globalEnv.store(out, "Console Configuration");
+        }
         log.info("Configuration saved to {}", file.getCanonicalPath());
     }
 

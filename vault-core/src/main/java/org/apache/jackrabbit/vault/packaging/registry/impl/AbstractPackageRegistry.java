@@ -44,6 +44,23 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class AbstractPackageRegistry implements PackageRegistry, InternalPackageRegistry {
 
+    public static final class SecurityConfig {
+        private final String[] authIdsForHookExecution;
+        private final String[] authIdsForRootInstallation;
+
+        public SecurityConfig(String[] authIdsForHooks, String[] authIdsForRoots) {
+            this.authIdsForHookExecution = authIdsForHooks;
+            this.authIdsForRootInstallation = authIdsForRoots;
+        }
+
+        public String[] getAuthIdsForHookExecution() {
+            return authIdsForHookExecution;
+        }
+
+        public String[] getAuthIdsForRootInstallation() {
+            return authIdsForRootInstallation;
+        }
+    }
     /**
      * default root path for packages
      */
@@ -58,6 +75,26 @@ public abstract class AbstractPackageRegistry implements PackageRegistry, Intern
      * default root path prefix for packages
      */
     public static final String DEFAULT_PACKAGE_ROOT_PATH_PREFIX = DEFAULT_PACKAGE_ROOT_PATH + "/";
+
+    protected @NotNull SecurityConfig securityConfig;
+
+    /** whether package imports should be strict by default (can be overwritten by {@link ImportOptions#setStrict(boolean)})
+     * 
+     */
+    private final boolean isStrictByDefault;
+
+    public AbstractPackageRegistry(SecurityConfig securityConfig, boolean isStrictByDefault) {
+        if (securityConfig != null) {
+            this.securityConfig = securityConfig;
+        } else {
+            this.securityConfig = new SecurityConfig(null, null);
+        }
+        this.isStrictByDefault = isStrictByDefault;
+    }
+
+    public boolean isStrictByDefault() {
+        return isStrictByDefault;
+    }
 
     /**
      * {@inheritDoc}
@@ -155,7 +192,7 @@ public abstract class AbstractPackageRegistry implements PackageRegistry, Intern
     @NotNull
     @Override
     public PackageId[] usage(PackageId id) throws IOException {
-        TreeSet<PackageId> usages = new TreeSet<PackageId>();
+        TreeSet<PackageId> usages = new TreeSet<>();
         for (PackageId pid : packages()) {
             try (RegisteredPackage pkg = open(pid)) {
                 if (pkg == null || !pkg.isInstalled()) {
@@ -190,8 +227,8 @@ public abstract class AbstractPackageRegistry implements PackageRegistry, Intern
      * @return the relative path of this package
      * @since 2.2
      */
-    public String getRelativeInstallationPath(PackageId id) {
-        StringBuilder b = new StringBuilder("/");
+    public static String getRelativeInstallationPath(PackageId id) {
+        StringBuilder b = new StringBuilder();
         if (id.getGroup().length() > 0) {
             b.append(id.getGroup());
             b.append("/");
@@ -204,14 +241,17 @@ public abstract class AbstractPackageRegistry implements PackageRegistry, Intern
         return b.toString();
     }
 
-
-     /**
+    /**
      * Creates a random package id for packages that lack one.
      * 
      * @return a random package id.
      */
     protected static PackageId createRandomPid() {
         return new PackageId("temporary", "pack_" + UUID.randomUUID().toString(), (String) null);
+    }
+
+    public @NotNull SecurityConfig getSecurityConfig() {
+        return securityConfig;
     }
 
 

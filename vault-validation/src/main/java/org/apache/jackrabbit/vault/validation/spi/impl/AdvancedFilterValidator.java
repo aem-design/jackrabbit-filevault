@@ -32,18 +32,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jackrabbit.vault.fs.api.FilterSet.Entry;
 import org.apache.jackrabbit.vault.fs.api.PathFilter;
@@ -55,7 +48,7 @@ import org.apache.jackrabbit.vault.fs.filter.DefaultPathFilter;
 import org.apache.jackrabbit.vault.packaging.PackageInfo;
 import org.apache.jackrabbit.vault.util.Constants;
 import org.apache.jackrabbit.vault.util.DocViewNode;
-import org.apache.jackrabbit.vault.util.Text;
+import org.apache.jackrabbit.util.Text;
 import org.apache.jackrabbit.vault.validation.ValidationViolation;
 import org.apache.jackrabbit.vault.validation.impl.util.ValidationMessageErrorHandler;
 import org.apache.jackrabbit.vault.validation.spi.DocumentViewXmlValidator;
@@ -63,7 +56,6 @@ import org.apache.jackrabbit.vault.validation.spi.FilterValidator;
 import org.apache.jackrabbit.vault.validation.spi.GenericMetaInfDataValidator;
 import org.apache.jackrabbit.vault.validation.spi.JcrPathValidator;
 import org.apache.jackrabbit.vault.validation.spi.NodeContext;
-import org.apache.jackrabbit.vault.validation.spi.NodePathValidator;
 import org.apache.jackrabbit.vault.validation.spi.ValidationMessage;
 import org.apache.jackrabbit.vault.validation.spi.ValidationMessageSeverity;
 import org.jetbrains.annotations.NotNull;
@@ -86,6 +78,7 @@ public final class AdvancedFilterValidator implements GenericMetaInfDataValidato
     
     static final Path FILTER_XML_PATH = Paths.get(Constants.VAULT_DIR, Constants.FILTER_XML);
 
+    private final DocumentBuilderFactory factory;
     private final boolean isSubPackage;
     private final Collection<String> validRoots;
     private final @NotNull ValidationMessageSeverity defaultSeverity;
@@ -98,7 +91,8 @@ public final class AdvancedFilterValidator implements GenericMetaInfDataValidato
     private final Collection<String> danglingNodePaths;
     private final Map<PathFilterSet, List<Entry<PathFilter>>> orphanedFilterSets;
 
-    public AdvancedFilterValidator(@NotNull ValidationMessageSeverity defaultSeverity, @NotNull ValidationMessageSeverity severityForUncoveredAncestorNodes, @NotNull ValidationMessageSeverity severityForUncoveredFilterRootAncestors, @NotNull ValidationMessageSeverity severityForOrphanedFilterEntries, boolean isSubPackage, @NotNull Collection<PackageInfo> dependenciesMetaInfo, @NotNull WorkspaceFilter filter, @NotNull Collection<String> validRoots) {
+    public AdvancedFilterValidator(@NotNull DocumentBuilderFactory factory, @NotNull ValidationMessageSeverity defaultSeverity, @NotNull ValidationMessageSeverity severityForUncoveredAncestorNodes, @NotNull ValidationMessageSeverity severityForUncoveredFilterRootAncestors, @NotNull ValidationMessageSeverity severityForOrphanedFilterEntries, boolean isSubPackage, @NotNull Collection<PackageInfo> dependenciesMetaInfo, @NotNull WorkspaceFilter filter, @NotNull Collection<String> validRoots) {
+        this.factory = factory;
         this.isSubPackage = isSubPackage;
         this.filterValidators = new HashMap<>();
         this.defaultSeverity = defaultSeverity;
@@ -285,7 +279,7 @@ public final class AdvancedFilterValidator implements GenericMetaInfDataValidato
 
     @Override
     public @Nullable Collection<ValidationMessage> validateJcrPath(@NotNull NodeContext nodeContext,
-            boolean isFolder) {
+            boolean isFolder, boolean isDocViewXml) {
         if (!isFolder) {
             return validateFileNodePath(nodeContext.getNodePath());
         } else {
@@ -319,21 +313,9 @@ public final class AdvancedFilterValidator implements GenericMetaInfDataValidato
     }
 
     @Override
-    public Collection<ValidationMessage> validateMetaInfData(@NotNull InputStream input, @NotNull Path filePath) throws IOException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        try (InputStream xsdInput = getClass().getResourceAsStream("/filter.xsd")) {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
-            // load a WXS schema, represented by a Schema instance
-            Source schemaFile = new StreamSource(xsdInput);
-            Schema schema = schemaFactory.newSchema(schemaFile);
-            factory.setSchema(schema);
-            Collection<ValidationMessage> messages = new LinkedList<>();
-            if (xsdInput == null) {
-                throw new IllegalStateException("Can not load filter.xsd");
-            }
-            factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    public Collection<ValidationMessage> validateMetaInfData(@NotNull InputStream input, @NotNull Path filePath, @NotNull Path basePath) throws IOException {
+        Collection<ValidationMessage> messages = new LinkedList<>();
+        try {    
             DocumentBuilder parser = factory.newDocumentBuilder();
             ValidationMessageErrorHandler errorHandler = new ValidationMessageErrorHandler(defaultSeverity);
             parser.setErrorHandler(errorHandler);
@@ -352,15 +334,14 @@ public final class AdvancedFilterValidator implements GenericMetaInfDataValidato
                         messages.addAll(ValidationViolation.wrapMessages(entry.getKey(), filterValidatorMessages, null, null, null, 0, 0));
                     }
                 }
-            } catch (ConfigurationException | PatternSyntaxException e) { // TODO: remove PatternSyntaxException once
-                                                                          // https://issues.apache.org/jira/browse/JCRVLT-368 is fixed
+            } catch (ConfigurationException e) {
                 messages.add(new ValidationMessage(defaultSeverity, MESSAGE_INVALID_FILTER_XML, e));
             }
             return messages;
-        } catch (SAXException e) {
-            throw new IOException("Could not parse input as xml", e);
         } catch (ParserConfigurationException e) {
-            throw new IllegalStateException("Could not instantiate DOM parser", e);
+            throw new IllegalStateException("Could not create parser from factory", e);
+        } catch (SAXException e) {
+            throw new IllegalStateException("Could not parse filter.xml", e);
         }
     }
 

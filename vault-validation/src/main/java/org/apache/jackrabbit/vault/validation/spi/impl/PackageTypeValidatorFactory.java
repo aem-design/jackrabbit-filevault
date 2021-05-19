@@ -16,6 +16,10 @@
  */
 package org.apache.jackrabbit.vault.validation.spi.impl;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.jackrabbit.vault.packaging.PackageType;
@@ -55,6 +59,10 @@ public final class PackageTypeValidatorFactory implements ValidatorFactory {
 
     public static final String OPTION_ALLOW_COMPLEX_FILTER_RULES_IN_APPLICATION_PACKAGES = "allowComplexFilterRulesInApplicationPackages";
 
+    public static final String OPTION_ALLOW_INSTALL_HOOKS_IN_APPLICATION_PACKAGES = "allowInstallHooksInApplicationPackages";
+
+    private static final String OPTION_IMMUTABLE_ROOT_NODE_NAMES = "immutableRootNodeNames";
+
     /**
      *  option to disable exclude/include filter check
      */
@@ -62,8 +70,11 @@ public final class PackageTypeValidatorFactory implements ValidatorFactory {
 
     static final Pattern DEFAULT_ADDITIONAL_JCR_INSTALLER_FILE_NODE_PATH_REGEX = Pattern.compile(".+?\\.(jar|config|cfg|cfg\\.json)");
 
+    
     private static final ValidationMessageSeverity DEFAULT_SEVERITY_FOR_LEGACY_TYPE = ValidationMessageSeverity.WARN;
     private static final ValidationMessageSeverity DEFAULT_SEVERITY_FOR_NO_TYPE = ValidationMessageSeverity.WARN;
+
+    static final Set<String> DEFAULT_IMMUTABLE_ROOT_NODE_NAMES = new TreeSet<>(Arrays.asList("apps", "libs"));
     
     @Override
     public @Nullable Validator createValidator(@NotNull ValidationContext context, @NotNull ValidatorSettings settings) {
@@ -114,8 +125,21 @@ public final class PackageTypeValidatorFactory implements ValidatorFactory {
         } else {
             allowComplexFilterRulesInApplicationPackages = false;
         }
+        final boolean allowInstallHooksInApplicationPackages;
+        if (settings.getOptions().containsKey(OPTION_ALLOW_INSTALL_HOOKS_IN_APPLICATION_PACKAGES)) {
+            allowInstallHooksInApplicationPackages = Boolean.valueOf(settings.getOptions().get(OPTION_ALLOW_INSTALL_HOOKS_IN_APPLICATION_PACKAGES));
+        } else {
+            allowInstallHooksInApplicationPackages = false;
+        }
+        final Set<String> immutableRootNodeNames;
+        if (settings.getOptions().containsKey(OPTION_IMMUTABLE_ROOT_NODE_NAMES)) {
+            String immutableRootNodeNamesValue = settings.getOptions().get(OPTION_IMMUTABLE_ROOT_NODE_NAMES);
+            immutableRootNodeNames = new HashSet<>(Arrays.asList(immutableRootNodeNamesValue.split("\\s*,\\s*")));
+        } else {
+            immutableRootNodeNames = DEFAULT_IMMUTABLE_ROOT_NODE_NAMES;
+        }
         @NotNull PackageType packageType = (context.getProperties().getPackageType() != null) ? context.getProperties().getPackageType() : PackageType.MIXED;
-        return new PackageTypeValidator(context.getFilter(), settings.getDefaultSeverity(), severityForNoType, severityForLegacyType, prohibitMutableContent, prohibitImmutableContent, allowComplexFilterRulesInApplicationPackages, packageType, jcrInstallerNodePathRegex, additionalJcrInstallerFileNodePathRegex, context.getContainerValidationContext());
+        return new PackageTypeValidator(context.getFilter(), settings.getDefaultSeverity(), severityForNoType, severityForLegacyType, prohibitMutableContent, prohibitImmutableContent, allowComplexFilterRulesInApplicationPackages, allowInstallHooksInApplicationPackages, packageType, jcrInstallerNodePathRegex, additionalJcrInstallerFileNodePathRegex, immutableRootNodeNames, context.getContainerValidationContext());
     }
 
     @Override

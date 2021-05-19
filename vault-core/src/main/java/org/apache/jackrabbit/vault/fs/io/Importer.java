@@ -82,7 +82,7 @@ import org.apache.jackrabbit.vault.packaging.impl.ActivityLog;
 import org.apache.jackrabbit.vault.packaging.registry.impl.JcrPackageRegistry;
 import org.apache.jackrabbit.vault.util.Constants;
 import org.apache.jackrabbit.vault.util.PlatformNameFormat;
-import org.apache.jackrabbit.vault.util.Text;
+import org.apache.jackrabbit.util.Text;
 import org.apache.jackrabbit.vault.util.Tree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -261,13 +261,20 @@ public class Importer {
      * list of intermediate infos that were removed since the last auto save
      */
     private Map<String, TxInfo> removedIntermediates = new LinkedHashMap<String, TxInfo>();
+    
+    private final boolean isStrictByDefault;
 
     public Importer() {
-         opts = new ImportOptions();
+         this(new ImportOptions(), false);
     }
 
     public Importer(ImportOptions opts) {
-         this.opts = opts;
+        this(opts, false);
+    }
+
+    public Importer(ImportOptions opts, boolean isStrictByDefault) {
+        this.opts = opts;
+        this.isStrictByDefault = isStrictByDefault;
     }
 
     public ImportOptions getOptions() {
@@ -276,6 +283,10 @@ public class Importer {
 
     public List<String> getSubPackages() {
         return subPackages;
+    }
+
+    public boolean isStrictByDefault() {
+        return isStrictByDefault;
     }
 
     /**
@@ -528,7 +539,7 @@ public class Importer {
                 log.debug("Installing node types...");
                 installer.install(tracker, nodeTypes);
             } catch (RepositoryException e) {
-                if (opts.isStrict()) {
+                if (opts.isStrict(isStrictByDefault)) {
                     throw e;
                 }
                 track(e, "Packaged node types");
@@ -546,7 +557,7 @@ public class Importer {
                 log.debug("Registering privileges...");
                 installer.install(tracker, privileges);
             } catch (RepositoryException e) {
-                if (opts.isStrict()) {
+                if (opts.isStrict(isStrictByDefault)) {
                     throw e;
                 }
                 track(e, "Packaged privileges");

@@ -423,10 +423,14 @@ public class DefaultWorkspaceFilter implements Dumpable, WorkspaceFilter {
         // check for import mode
         String mode = elem.getAttribute("mode");
         if (mode != null && mode.length() > 0) {
-            ImportMode importMode = ImportMode.valueOf(mode.toUpperCase());
-            nodeFilters.setImportMode(importMode);
-            propFilters.setImportMode(importMode);
-            bothFilters.setImportMode(importMode);
+            try {
+                ImportMode importMode = ImportMode.valueOf(mode.toUpperCase());
+                nodeFilters.setImportMode(importMode);
+                propFilters.setImportMode(importMode);
+                bothFilters.setImportMode(importMode);
+            } catch (IllegalArgumentException e) {
+                throw new ConfigurationException("Invalid value given for attribute 'mode'", e);
+            }
         }
         String type = elem.getAttribute("type");
         if (type != null && type.length() > 0) {
@@ -484,7 +488,16 @@ public class DefaultWorkspaceFilter implements Dumpable, WorkspaceFilter {
         Iterator<PathFilterSet> iter = nodesFilterSets.iterator();
         while (iter.hasNext()) {
             PathFilterSet set = iter.next();
-            ctx.println(!iter.hasNext(), "ItemFilterSet");
+            ctx.println(!iter.hasNext(), "NodeFilterSet");
+            ctx.indent(!iter.hasNext());
+            set.dump(ctx, false);
+            ctx.outdent();
+        }
+        
+        iter = propsFilterSets.iterator();
+        while (iter.hasNext()) {
+            PathFilterSet set = iter.next();
+            ctx.println(!iter.hasNext(), "PropertyFilterSet");
             ctx.indent(!iter.hasNext());
             set.dump(ctx, false);
             ctx.outdent();

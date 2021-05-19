@@ -23,7 +23,7 @@
         <groupId>org.apache.jackrabbit.vault</groupId>
         <artifactId>parent</artifactId>
         <relativePath>../parent/pom.xml</relativePath>
-        <version>3.4.5-SNAPSHOT</version>
+        <version>3.4.11-SNAPSHOT</version>
     </parent>
 
     <!-- ====================================================================== -->
@@ -34,14 +34,10 @@
     <name>Apache Jackrabbit FileVault Validation</name>
     <description>Provides a validation framework with SPI and API for performing validations on FileVault packages</description>
 
-    <!-- ====================================================================== -->
-    <!-- S C M  D E F I N I T I O N -->
-    <!-- ====================================================================== -->
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/jackrabbit/commons/filevault/trunk/vault-validation</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/jackrabbit/commons/filevault/trunk/vault-validation</developerConnection>
-        <url>https://svn.apache.org/viewvc/jackrabbit/commons/filevault/trunk/vault-validation</url>
-    </scm>
+    <properties>
+        <!-- http://maven.apache.org/ref/3.6.3/maven-model-builder/index.html#Inheritance_Assembly -->
+        <project.directory>vault-validation</project.directory>
+    </properties>
 
     <build>
         <plugins>
@@ -102,6 +98,11 @@
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>jackrabbit-spi-commons</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>jackrabbit-jcr2spi</artifactId>
         </dependency>
 
         <dependency>
@@ -177,5 +178,4 @@
           <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

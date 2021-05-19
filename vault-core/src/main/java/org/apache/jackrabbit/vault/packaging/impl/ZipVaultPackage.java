@@ -17,6 +17,7 @@
 
 package org.apache.jackrabbit.vault.packaging.impl;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -38,6 +39,8 @@ import org.apache.jackrabbit.vault.packaging.InstallHookProcessorFactory;
 import org.apache.jackrabbit.vault.packaging.PackageException;
 import org.apache.jackrabbit.vault.packaging.PackageProperties;
 import org.apache.jackrabbit.vault.packaging.VaultPackage;
+import org.apache.jackrabbit.vault.packaging.registry.impl.AbstractPackageRegistry;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * Implements a vault package that is a zipped representation of a file vault
  * export.
  */
-public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPackage {
+public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPackage, Closeable {
 
     private static final Logger log = LoggerFactory.getLogger(ZipVaultPackage.class);
 
@@ -145,10 +148,22 @@ public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPacka
     }
 
     /**
+     * Extracts the current package allowing additional users to do that in case the package contains hooks or requires the root user
+     * @param session the session to user
+     * @param opts import options
+     * @param securityConfig configuration for the security during package extraction
+     * @throws PackageException if an error during packaging occurs
+     * @throws RepositoryException if a repository error during installation occurs.
+     */
+    public void extract(Session session, ImportOptions opts, @NotNull AbstractPackageRegistry.SecurityConfig securityConfig, boolean isStrict) throws PackageException, RepositoryException {
+        extract(prepareExtract(session, opts, securityConfig, isStrict), null);
+    }
+    
+    /**
      * {@inheritDoc}
      */
     public void extract(Session session, ImportOptions opts) throws RepositoryException, PackageException {
-        extract(prepareExtract(session, opts), null);
+        extract(session, opts, new AbstractPackageRegistry.SecurityConfig(null, null), false);
     }
 
     /**
@@ -169,7 +184,7 @@ public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPacka
      * @throws IllegalStateException if the package is not valid.
      * @return installation context
      */
-    protected InstallContextImpl prepareExtract(Session session, ImportOptions opts) throws RepositoryException, PackageException {
+    protected InstallContextImpl prepareExtract(Session session, ImportOptions opts, @NotNull AbstractPackageRegistry.SecurityConfig securityConfig, boolean isStrictByDefault) throws PackageException, RepositoryException {
         if (!isValid()) {
             throw new IllegalStateException("Package not valid.");
         }
@@ -181,14 +196,15 @@ public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPacka
             hooks.registerHooks(archive, opts.getHookClassLoader());
         }
 
-        if (requiresRoot() || hooks.hasHooks()) {
-            if (!AdminPermissionChecker.hasAdministrativePermissions(session)) {
-                log.error("Package extraction requires admin session.");
-                throw new PackageException("Package extraction requires admin session (userid not allowed).");
-            }
+        checkAllowanceToInstallPackage(session, hooks, securityConfig);
+
+        // check for disable intermediate saves (JCRVLT-520)
+        if (Boolean.parseBoolean(getProperty(PackageProperties.NAME_DISABLE_INTERMEDIATE_SAVE))) {
+            // MAX_VALUE disables saving completely, therefore we have to use a lower value!
+            opts.setAutoSaveThreshold(Integer.MAX_VALUE - 1);
         }
 
-        Importer importer = new Importer(opts);
+        Importer importer = new Importer(opts, isStrictByDefault);
         AccessControlHandling ac = getACHandling();
         if (opts.getAccessControlHandling() == null) {
             opts.setAccessControlHandling(ac);
@@ -204,6 +220,19 @@ public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPacka
 
         return new InstallContextImpl(session, "/", this, importer, hooks);
     }
+
+    protected void checkAllowanceToInstallPackage(@NotNull Session session, @NotNull InstallHookProcessor hookProcessor, @NotNull AbstractPackageRegistry.SecurityConfig securityConfig) throws PackageException, RepositoryException {
+       if (requiresRoot()) {
+           if (!AdminPermissionChecker.hasAdministrativePermissions(session, securityConfig.getAuthIdsForRootInstallation())) {
+               throw new PackageException("Package extraction requires admin session as it has the 'requiresRoot' flag (userid '" + session.getUserID() + "' not allowed).");
+           }
+       }
+       if (hookProcessor.hasHooks()) {
+           if (!AdminPermissionChecker.hasAdministrativePermissions(session, securityConfig.getAuthIdsForHookExecution())) {
+               throw new PackageException("Package extraction requires admin session as it has a hook (userid '" + session.getUserID() + "' not allowed).");
+           }
+       }
+   }
 
     /**
      * Same as above but the given subPackages argument receives a list of
@@ -242,7 +271,7 @@ public class ZipVaultPackage extends PackagePropertiesImpl implements VaultPacka
                 hooks.execute(ctx);
                 throw new PackageException("Error while executing an install hook during installed phase.");
             }
-            if (importer.hasErrors() && ctx.getOptions().isStrict()) {
+            if (importer.hasErrors() && ctx.getOptions().isStrict(importer.isStrictByDefault())) {
                 ctx.setPhase(InstallContext.Phase.INSTALL_FAILED);
                 hooks.execute(ctx);
                 throw new PackageException("Errors during import.");

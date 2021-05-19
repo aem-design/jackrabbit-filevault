@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -58,9 +59,8 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
     protected static final String MESSAGE_NO_PACKAGE_TYPE_SET = "No package type set, make sure that property 'packageType' is set in the properties.xml!";
     protected static final String MESSAGE_OSGI_BUNDLE_OR_CONFIG = "Package of type '%s' is not supposed to contain OSGi bundles or configurations!";
     protected static final String MESSAGE_NO_OSGI_BUNDLE_OR_CONFIG_OR_SUB_PACKAGE = "Package of type '%s' is not supposed to contain anything but OSGi bundles/configurations and sub packages!";
-    protected static final String MESSAGE_APP_CONTENT = "Package of type '%s' is not supposed to contain content inside '/libs' and '/apps'!";
-    protected static final String MESSAGE_NO_APP_CONTENT_FOUND = "Package of type '%s' is not supposed to contain content outside '/libs' and '/apps'!";
-    protected static final String MESSAGE_INDEX_DEFINITIONS = "Package of type '%s' is not supposed to contain Oak index definitions but has 'allowIndexDefinitions' set to true.";
+    protected static final String MESSAGE_APP_CONTENT = "Package of type '%s' is not supposed to contain content below root nodes %s!";
+    protected static final String MESSAGE_NO_APP_CONTENT_FOUND = "Package of type '%s' is not supposed to contain content outside root nodes %s!";
     protected static final String MESSAGE_PROHIBITED_MUTABLE_PACKAGE_TYPE = "All mutable package types are prohibited and this package is of mutable type '%s'";
     protected static final String MESSAGE_PROHIBITED_IMMUTABLE_PACKAGE_TYPE = "All mutable package types are prohibited and this package is of mutable type '%s'";
     protected static final String SLING_OSGI_CONFIG = "sling:OsgiConfig";
@@ -75,14 +75,17 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
     private final boolean prohibitMutableContent;
     private final boolean prohibitImmutableContent;
     private final boolean allowComplexFilterRulesInApplicationPackages;
+    private final boolean allowInstallHooksInApplicationPackages;
     private final @NotNull WorkspaceFilter filter;
+    private final Set<String> immutableRootNodeNames;
     private List<String> validContainerNodePaths;
     private List<NodeContext> potentiallyDisallowedContainerNodes;
 
     public PackageTypeValidator(@NotNull WorkspaceFilter workspaceFilter, @NotNull ValidationMessageSeverity severity,
             @NotNull ValidationMessageSeverity severityForNoPackageType, @NotNull ValidationMessageSeverity severityForLegacyType,
             boolean prohibitMutableContent, boolean prohibitImmutableContent, boolean allowComplexFilterRulesInApplicationPackages,
-            @NotNull PackageType type, @NotNull Pattern jcrInstallerNodePathRegex, @NotNull Pattern additionalJcrInstallerFileNodePathRegex,
+            boolean allowInstallHooksInApplicationPackages, @NotNull PackageType type, @NotNull Pattern jcrInstallerNodePathRegex, 
+            @NotNull Pattern additionalJcrInstallerFileNodePathRegex, @NotNull Set<String> immutableRootNodeNames, 
             @Nullable ValidationContext containerValidationContext) {
         this.type = type;
         this.severity = severity;
@@ -91,8 +94,10 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
         this.prohibitMutableContent = prohibitMutableContent;
         this.prohibitImmutableContent = prohibitImmutableContent;
         this.allowComplexFilterRulesInApplicationPackages = allowComplexFilterRulesInApplicationPackages;
+        this.allowInstallHooksInApplicationPackages = allowInstallHooksInApplicationPackages;
         this.jcrInstallerNodePathRegex = jcrInstallerNodePathRegex;
         this.additionalJcrInstallerFileNodePathRegex = additionalJcrInstallerFileNodePathRegex;
+        this.immutableRootNodeNames = immutableRootNodeNames;
         this.containerValidationContext = containerValidationContext;
         this.filter = workspaceFilter;
         this.validContainerNodePaths = new LinkedList<>();
@@ -114,8 +119,9 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
         return (nodePath.endsWith(".zip"));
     }
 
-    static boolean isAppContent(String nodePath) {
-        return "/apps".equals(nodePath) || nodePath.startsWith("/apps/") || "/libs".equals(nodePath) || nodePath.startsWith("/libs/");
+    boolean isImmutableContent(String nodePath) {
+        return immutableRootNodeNames.stream().anyMatch( 
+                rootNodeName ->  ("/"+rootNodeName).equals(nodePath) || nodePath.startsWith( "/"+rootNodeName + "/"));
     }
 
     @Override
@@ -142,16 +148,16 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
         Collection<ValidationMessage> messages = new LinkedList<>();
         switch (type) {
         case CONTENT:
-            if (isAppContent(nodeContext.getNodePath())) {
-                messages.add(new ValidationMessage(severity, String.format(MESSAGE_APP_CONTENT, type)));
+            if (isImmutableContent(nodeContext.getNodePath())) {
+                messages.add(new ValidationMessage(severity, String.format(MESSAGE_APP_CONTENT, type, immutableRootNodeNames.stream().collect(Collectors.joining("' or '", "'", "'")))));
             }
             if (isOsgiBundleOrConfiguration(nodeContext.getNodePath(), true)) {
                 messages.add(new ValidationMessage(severity, String.format(MESSAGE_OSGI_BUNDLE_OR_CONFIG, type)));
             }
             break;
         case APPLICATION:
-            if (!isAppContent(nodeContext.getNodePath())) {
-                messages.add(new ValidationMessage(severity, String.format(MESSAGE_NO_APP_CONTENT_FOUND, type)));
+            if (!isImmutableContent(nodeContext.getNodePath())) {
+                messages.add(new ValidationMessage(severity, String.format(MESSAGE_NO_APP_CONTENT_FOUND, type, immutableRootNodeNames.stream().collect(Collectors.joining("' or '", "'", "'")))));
             }
             if (isOsgiBundleOrConfiguration(nodeContext.getNodePath(), true)) {
                 messages.add(new ValidationMessage(severity, String.format(MESSAGE_OSGI_BUNDLE_OR_CONFIG, type)));
@@ -214,13 +220,9 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
         switch (packageType) {
         case APPLICATION:
             // must not contain hooks (this detects external hooks)
-            if (!properties.getExternalHooks().isEmpty()) {
+            if (!properties.getExternalHooks().isEmpty() && !allowInstallHooksInApplicationPackages) {
                 messages.add(new ValidationMessage(severity,
                         String.format(MESSAGE_PACKAGE_HOOKS, properties.getPackageType(), properties.getExternalHooks())));
-            }
-            // must not include oak:index
-            if (OakIndexDefinitionValidatorFactory.areIndexDefinitionsAllowed(properties)) {
-                messages.add(new ValidationMessage(severity, String.format(MESSAGE_INDEX_DEFINITIONS, properties.getPackageType())));
             }
             if (prohibitImmutableContent) {
                 messages.add(new ValidationMessage(severity,
@@ -303,7 +305,7 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
     public Collection<ValidationMessage> validateMetaInfPath(@NotNull Path filePath, @NotNull Path basePath, boolean isFolder) {
         switch (type) {
         case APPLICATION:
-            if (filePath.startsWith(PATH_HOOKS))
+            if (filePath.startsWith(PATH_HOOKS) && !allowInstallHooksInApplicationPackages)
                 // must not contain hooks (this detects internal hooks)
                 return Collections.singleton(new ValidationMessage(severity, String.format(MESSAGE_PACKAGE_HOOKS, type, filePath)));
         default:
@@ -313,21 +315,18 @@ public final class PackageTypeValidator implements NodePathValidator, FilterVali
     }
 
     @Override
-    public @Nullable Collection<ValidationMessage> validate(@NotNull DocViewNode node, @NotNull String nodePath,
-            @NotNull Path filePath, boolean isRoot) {
+    public @Nullable Collection<ValidationMessage> validate(@NotNull DocViewNode node, @NotNull NodeContext nodeContext, boolean isRoot) {
         // check only type content and application
         switch (type) {
         case APPLICATION:
         case CONTENT:
-            if (jcrInstallerNodePathRegex.matcher(nodePath).matches()) {
-                if (SLING_OSGI_CONFIG.equals(node.primary)) {
-                    return Collections
-                            .singleton(new ValidationMessage(severity, String.format(MESSAGE_OSGI_BUNDLE_OR_CONFIG, type, nodePath)));
-                }
+            if (jcrInstallerNodePathRegex.matcher(nodeContext.getNodePath()).matches() && SLING_OSGI_CONFIG.equals(node.primary)) {
+               return Collections.singleton(new ValidationMessage(severity, String.format(MESSAGE_OSGI_BUNDLE_OR_CONFIG, type)));
             }
             break;
         case CONTAINER:
-
+        case MIXED:
+            break;
         }
         return null;
     }

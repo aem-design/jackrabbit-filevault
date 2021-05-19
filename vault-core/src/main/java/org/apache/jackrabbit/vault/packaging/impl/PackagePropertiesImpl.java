@@ -34,7 +34,7 @@ import org.apache.jackrabbit.vault.packaging.PackageProperties;
 import org.apache.jackrabbit.vault.packaging.PackageType;
 import org.apache.jackrabbit.vault.packaging.SubPackageHandling;
 import org.apache.jackrabbit.vault.packaging.VaultPackage;
-import org.apache.jackrabbit.vault.util.Text;
+import org.apache.jackrabbit.util.Text;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,6 +161,14 @@ public abstract class PackagePropertiesImpl implements PackageProperties {
      * {@inheritDoc}
      */
     @Override
+    public boolean requiresRestart() {
+        return "true".equals(getProperty(NAME_REQUIRES_RESTART));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public Dependency[] getDependencies() {
         String deps = getProperty(NAME_DEPENDENCIES);
         if (deps == null) {
@@ -210,6 +218,7 @@ public abstract class PackagePropertiesImpl implements PackageProperties {
     @Override
     public Calendar getDateProperty(String name) {
         try {
+            // TODO: add timezone if not there?
             String p = getProperty(name);
             return p == null
                     ? null
@@ -269,6 +278,16 @@ public abstract class PackagePropertiesImpl implements PackageProperties {
             }
         }
         return hookClasses;
+    }
+
+    @Override
+    public long getBuildCount() {
+        try {
+            return Long.parseLong(getProperty(NAME_BUILD_COUNT));
+        } catch (NumberFormatException e) {
+            log.warn("Invalid buildcount property, must be an integer");
+            return 0;
+        }
     }
 
     protected abstract Properties getPropertiesMap();

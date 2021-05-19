@@ -14,8 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd ">
     <modelVersion>4.0.0</modelVersion>
     <!-- ====================================================================== -->
     <!-- P A R E N T P R O J E C T D E S C R I P T I O N -->
@@ -24,7 +23,7 @@
         <groupId>org.apache.jackrabbit.vault</groupId>
         <artifactId>parent</artifactId>
         <relativePath>../parent/pom.xml</relativePath>
-        <version>3.4.5-SNAPSHOT</version>
+        <version>3.4.11-SNAPSHOT</version>
     </parent>
 
     <!-- ====================================================================== -->
@@ -35,17 +34,9 @@
     <name>Apache Jackrabbit FileVault Target OSGi Environment</name>
     <description>The bndrun files and the used bundles for resolving all FileVault bundles in the minimum support OSGi container</description>
 
-    <!-- ====================================================================== -->
-    <!-- S C M D E F I N I T I O N -->
-    <!-- ====================================================================== -->
-    <scm>
-        <connection>scm:svn:http://svn.apache.org/repos/asf/jackrabbit/commons/filevault/trunk/target-osgi-environment</connection>
-        <developerConnection>scm:svn:https://svn.apache.org/repos/asf/jackrabbit/commons/filevault/trunk/target-osgi-environment</developerConnection>
-        <url>https://svn.apache.org/viewvc/jackrabbit/commons/filevault/trunk/target-osgi-environment</url>
-    </scm>
-
     <properties>
         <jackrabbit.version>2.14.0</jackrabbit.version>
+        <jackson.version>2.8.4</jackson.version>
     </properties>
     <!-- ====================================================================== -->
     <!-- B U I L D -->
@@ -75,6 +66,7 @@
                             <goal>index</goal>
                         </goals>
                         <configuration>
+                            <attach>false</attach>
                             <includeGzip>false</includeGzip>
                             <scopes>compile,runtime,provided</scopes>
                         </configuration>
@@ -196,9 +188,9 @@
             <version>${jackrabbit.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-spi</artifactId>
-            <version>${jackrabbit.version}</version>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.jcr.api</artifactId>
+            <version>2.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.sling</groupId>
@@ -210,6 +202,21 @@
             <artifactId>org.apache.sling.jcr.oak.server</artifactId>
             <version>1.2.0</version> <!-- uses Oak 1.6.1 -->
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        
     </dependencies>
-
 </project>
